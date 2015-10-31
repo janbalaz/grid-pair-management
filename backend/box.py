@@ -1,11 +1,12 @@
+import sys
 
 
 class Box:
 
     def __init__(self, coordinates):
-        self.oid = id(self)
+        self.bid = id(self)
         # TODO generate random velocity
-        self.min_x, self.min_y, self.max_x, self.max_y = 0, 0, 0, 0
+        self.min_x, self.min_y, self.max_x, self.max_y = sys.maxint, sys.maxint, 0, 0
         self.__create_aabb(coordinates)
 
     def __create_aabb(self, coordinates):
@@ -15,12 +16,11 @@ class Box:
         for pair in coordinates:
             if pair[0] < self.min_x:
                 self.min_x = pair[0]
-            elif pair[0] > self.max_x:
+            if pair[0] > self.max_x:
                 self.max_x = pair[0]
-
             if pair[1] < self.min_y:
                 self.min_y = pair[1]
-            elif pair[1] > self.max_y:
+            if pair[1] > self.max_y:
                 self.max_y = pair[1]
 
     def move_box(self):

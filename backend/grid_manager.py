@@ -33,13 +33,13 @@ class GridManager:
             for j in range(min_cell_y, max_cell_y + 1):
                 cell = self.grid[i][j]
                 # pair current object with other objects in cell
-                for oid in cell.ids:
-                    cell.pairs.add((oid, box.id))
-                    cell.pairs.add((box.id, oid))
-                cell.ids.add(box.id)
+                for bid in cell.ids:
+                    cell.pairs.add((bid, box.bid))
+                    cell.pairs.add((box.bid, bid))
+                cell.ids.add(box.bid)
 
     def remove_box(self, box):
-        """"""
+        """Removes pairs with current box id from grid."""
         # get left down corner cell
         min_cell_x, min_cell_y = self.__cell(box.min_x, box.min_y)
         # get right upper corner cell
@@ -49,11 +49,11 @@ class GridManager:
             for j in range(min_cell_y, max_cell_y + 1):
                 cell = self.grid[i][j]
                 # at first remove box id from cell
-                cell.ids.discard(box.id)
+                cell.ids.discard(box.bid)
                 # pair current object with other objects in cell and try to remove them
-                for oid in cell.ids:
-                    cell.pairs.discard((oid, box.id))
-                    cell.pairs.discard((box.id, oid))
+                for bid in cell.ids:
+                    cell.pairs.discard((bid, box.bid))
+                    cell.pairs.discard((box.bid, bid))
 
     def update_box(self, box):
         self.remove_box(box)
