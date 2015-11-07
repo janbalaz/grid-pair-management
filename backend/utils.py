@@ -19,13 +19,9 @@ def generate_objects(count, x_size, y_size, max_x_size, max_y_size):
             if 0 <= x <= x_size and 0 <= y <= y_size:
                 points.append((x, y))
 
-        objects.append(Box(points))
+        objects.append(Box(i, points))
 
     return objects
 
 if __name__ == "__main__":
-    objs = generate_objects(10, 100, 50, 30, 20)
-    print objs[0].min_x
-    print objs[0].min_y
-    print objs[0].max_x
-    print objs[0].max_y
+    pass
