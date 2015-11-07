@@ -1,6 +1,10 @@
 """Contains various helper functions for other modules."""
 import random
+import json
 from box import Box
+from enum import Enum
+from collections import OrderedDict
+MNGMT_TYPE = Enum('MNGMT_TYPE', 'matrix hashed')
 
 
 def generate_objects(count, x_size, y_size, max_x_size, max_y_size):
@@ -22,6 +26,26 @@ def generate_objects(count, x_size, y_size, max_x_size, max_y_size):
         objects.append(Box(i, points))
 
     return objects
+
+
+def parse_grid(grid):
+    """Creates dict dump from dense matrix. Used for JSON dump."""
+    parsed = OrderedDict()
+    for i in range(len(grid)):
+        parsed[str(i)] = OrderedDict()
+        for j in range(len(grid)):
+            parsed[str(i)][str(j)] = [x for x in grid[i][j].ids]
+    return parsed
+
+
+def get_grids_json(grid_managers, times=[]):
+    """Collects grids from grid managers and returns them in single JSON."""
+    grids = {}
+    for key, gm in grid_managers.iteritems():
+        grids[key] = parse_grid(gm.grid)
+
+    grids["times"] = times
+    return json.dumps(grids)
 
 if __name__ == "__main__":
     pass

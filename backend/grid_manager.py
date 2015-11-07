@@ -1,6 +1,6 @@
 import math
 from box import Box
-from main import MNGMT_TYPE
+from utils import MNGMT_TYPE
 
 
 class Cell:
@@ -94,11 +94,12 @@ class GridManager:
         except KeyError:
             print("ERROR: Box with id {} should be in dictionary.".format(box.bid))
 
-    def update_box(self, box):
+    def update_boxes(self):
         """Performs movement of box and updates grid."""
-        self.remove_box(box)
-        # TODO must move box here!!!
-        self.add_box(box)
+        for _, box in self.boxes.iteritems():
+            self.remove_box(box)
+            # TODO must move box here!!!
+            self.add_box(box)
 
     def __cell(self, x, y):
         """Returns coordinates of cell based on x and y coordinates."""
