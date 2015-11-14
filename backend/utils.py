@@ -7,6 +7,13 @@ from collections import OrderedDict
 MNGMT_TYPE = Enum('MNGMT_TYPE', 'matrix hashed')
 
 
+def hash_bids(n, bid1, bid2):
+    """Returns hash of a pair limited by the count of objects."""
+    prime1 = 15485863
+    prime2 = 32452843
+    return (bid1*prime1 ^ bid2*prime2) % n
+
+
 def generate_objects(count, x_size, y_size, max_x_size, max_y_size):
     """Generates random sized and placed objects."""
     objects = []
