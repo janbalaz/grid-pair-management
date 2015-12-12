@@ -1,4 +1,5 @@
 import pytest
+import itertools
 from backend.grid_manager import Cell, GridManager, StoreType
 from backend.box import Box
 
@@ -28,6 +29,7 @@ cell_remove_pairs = [(StoreType.hashed, 42, {1, 3, 5}, {(1, 3), (3, 1), (1, 5), 
 grid_init_data = [(StoreType.matrix, 10, 600, 600, 100, 6, 6),
                   (StoreType.hashed, 5, 300, 300, 50, 6, 6),
                   (StoreType.matrix, 10, 1000, 600, 100, 10, 6),
+                  (StoreType.matrix, 10, 600, 600, 64, 9, 9),
                   (StoreType.hashed, 10, 300, 600, 25, 12, 24),
                   (StoreType.matrix, 10, 1000, 600, 0, 0, 0),
                   (StoreType.matrix, 10, 1000, 0, 100, 10, 0),
@@ -40,9 +42,25 @@ grid_cell_data = [(100, 200, 25, 4, 8),
                   (0, 200, 10, 0, 20),
                   (100, 0, 10, 10, 0)]
 
-grid_add_box_data = [
-    (Box(1, [(0, 0), (400, 400), (0, 400), (400, 0)]), 0, 8, 0, 8),
-    (Box(1, [(50, 0), (100, 0), (200, 52), (50, 580), (100, 512), (242, 300)]), 1, 4, 0, 11)]
+grid_add_box_data = [(Box(1, [(0, 0), (400, 400), (0, 400), (400, 0)]), 0, 8, 0, 8),
+                     (Box(1, [(50, 0), (100, 0), (200, 52), (50, 580), (100, 512), (242, 300)]), 1, 4, 0, 11)]
+
+grid_add_boxes_data = [
+    ([Box(1, [(0, 0), (400, 400), (0, 400), (400, 0)]),
+      Box(2, [(0, 0), (200, 200), (0, 200), (200, 0)])],
+     0, 4, 0, 4, [1, 2]),
+    ([Box(1, [(0, 0), (400, 400), (0, 400), (400, 0)]),
+      Box(2, [(0, 0), (200, 200), (0, 200), (200, 0)]),
+      Box(3, [(100, 100), (200, 200), (100, 200), (200, 100)])],
+     2, 4, 2, 4, [1, 2, 3])
+]
+
+grid_remove_box_data = [
+    ([Box(1, [(0, 0), (400, 400), (0, 400), (400, 0)]),
+      Box(2, [(0, 0), (200, 200), (0, 200), (200, 0)]),
+      Box(3, [(100, 100), (200, 200), (100, 200), (200, 100)])],
+     2, 4, 2, 4, 0, [2, 3])
+]
 
 
 @pytest.mark.parametrize("store_type, obj_count", cell_init_data)
@@ -116,18 +134,69 @@ def test_grid_manager_add_box(box, min_x, max_x, min_y, max_y):
             assert box.bid in gm2.grid[i][j].ids
 
 
-grid_add_boxes_data = [()]
-
-
-@pytest.mark.parametrize("boxes, min_x, max_x, min_y, max_y, exp_pairs", grid_add_boxes_data)
-def test_grid_manager_add_boxes_to_matrix(boxes, min_x, max_x, min_y, max_y, exp_pairs):
-    gm1 = GridManager(x_size=600, y_size=600, cell_size=50)
-    #gm2 = GridManager(store_type=StoreType.hashed, x_size=600, y_size=600, cell_size=50)
+@pytest.mark.parametrize("boxes, min_x, max_x, min_y, max_y, ids", grid_add_boxes_data)
+def test_grid_manager_add_boxes_to_matrix(boxes, min_x, max_x, min_y, max_y, ids):
+    gm = GridManager(x_size=600, y_size=600, cell_size=50)
 
     for box in boxes:
-        gm1.add_box(box)
+        gm.add_box(box)
 
+    combinations = itertools.combinations(ids, 2)
     for i in range(min_x, max_x + 1):
         for j in range(min_y, max_y + 1):
-            assert box.bid in gm1.grid[i][j].ids
-            #assert box.bid in gm2.grid[i][j].ids
+            for id1, id2 in combinations:
+                assert gm.grid[i][j].pairs[id1][id2]
+
+
+@pytest.mark.parametrize("boxes, min_x, max_x, min_y, max_y, ids", grid_add_boxes_data)
+def test_grid_manager_add_boxes_to_hashed(boxes, min_x, max_x, min_y, max_y, ids):
+    gm = GridManager(store_type=StoreType.hashed, x_size=600, y_size=600, cell_size=50)
+
+    for box in boxes:
+        gm.add_box(box)
+
+    combinations = itertools.combinations(ids, 2)
+    for i in range(min_x, max_x + 1):
+        for j in range(min_y, max_y + 1):
+            for id1, id2 in combinations:
+                assert (id1, id2) in gm.grid[i][j].pairs
+
+
+@pytest.mark.parametrize("boxes, min_x, max_x, min_y, max_y, r_id, ids", grid_remove_box_data)
+def test_grid_manager_remove_box_from_matrix(boxes, min_x, max_x, min_y, max_y, r_id, ids):
+    gm = GridManager(store_type=StoreType.matrix, x_size=600, y_size=600, cell_size=50)
+
+    for box in boxes:
+        gm.add_box(box)
+
+    gm.remove_box(boxes[r_id])
+
+    combinations = itertools.combinations(ids, 2)
+    for i in range(len(gm.grid)):
+        for j in range(len(gm.grid[i])):
+            if i in range(min_x, max_x + 1) and j in range(min_y, max_y + 1):
+                for id1, id2 in combinations:
+                    assert gm.grid[i][j].pairs[id1][id2]
+            else:
+                for id1, id2 in combinations:
+                    assert not gm.grid[i][j].pairs[id1][id2]
+
+
+@pytest.mark.parametrize("boxes, min_x, max_x, min_y, max_y, r_id, ids", grid_remove_box_data)
+def test_grid_manager_remove_box_from_hashed(boxes, min_x, max_x, min_y, max_y, r_id, ids):
+    gm = GridManager(store_type=StoreType.hashed, x_size=600, y_size=600, cell_size=50)
+
+    for box in boxes:
+        gm.add_box(box)
+
+    gm.remove_box(boxes[r_id])
+
+    combinations = itertools.combinations(ids, 2)
+    for i in range(len(gm.grid)):
+        for j in range(len(gm.grid[i])):
+            if i in range(min_x, max_x + 1) and j in range(min_y, max_y + 1):
+                for id1, id2 in combinations:
+                    assert (id1, id2) in gm.grid[i][j].pairs
+            else:
+                for id1, id2 in combinations:
+                    assert not (id1, id2) in gm.grid[i][j].pairs

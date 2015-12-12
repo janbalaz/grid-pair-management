@@ -8,8 +8,8 @@ class Box:
         self.bid = bid
         self.coordinates = coordinates
         # TODO add generated random velocity
-        self.min_x, self.min_y = sys.maxsize, sys.maxsize
-        self.max_x, self.max_y = -sys.maxsize, -sys.maxsize
+        self.min_x = self.min_y = sys.maxsize
+        self.max_x = self.max_y = -sys.maxsize
         self.__create_aabb()
 
     def __create_aabb(self):

@@ -57,13 +57,9 @@ class GridManager:
     def __init__(self, store_type=StoreType.matrix, obj_count=10, x_size=600, y_size=600, cell_size=100):
         """Computes grid size, creates and stores grid. Stores also size of a cell."""
         self.boxes = dict()
-        # TODO change cell_size with the count of objects
-        try:
-            x_cells = int((x_size / cell_size) + 0.5)
-            y_cells = int((y_size / cell_size) + 0.5)
-        except ZeroDivisionError:
-            x_cells, y_cells = 0, 0
         self.cell_size = cell_size
+        # TODO change cell_size with the count of objects
+        x_cells, y_cells = self._cell(x_size, y_size)
         # grid is represented as matrix
         self.grid = [[Cell(store_type, obj_count) for _ in range(y_cells)] for _ in range(x_cells)]
 

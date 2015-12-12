@@ -27,10 +27,11 @@ def hello(token):
 @app.route("/init-grid/<int:obj_count>/<int:x_size>/<int:y_size>/<token>")
 @owns_token
 def initialize_grid(obj_count, x_size, y_size, token):
+    # for example http://localhost:5000/init-grid/10/600/600/abc
     GMS['mgm'] = GridManager(utils.StoreType.matrix, obj_count, x_size, y_size, 64)
     GMS['hgm'] = GridManager(utils.StoreType.hashed, obj_count, x_size, y_size, 64)
 
-    boxes = utils.generate_objects(obj_count, x_size, y_size, 256, 256)
+    boxes = utils.generate_objects(obj_count, x_size, y_size, 256, 256, 64)
 
     for box in boxes:
         GMS['mgm'].add_box(box)
