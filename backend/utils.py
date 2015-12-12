@@ -1,10 +1,14 @@
 """Contains various helper functions for other modules."""
 import random
 import json
-from box import Box
+from backend.box import Box
 from enum import Enum
 from collections import OrderedDict
-MNGMT_TYPE = Enum('MNGMT_TYPE', 'matrix hashed')
+
+
+class StoreType(Enum):
+    matrix = "matrix"
+    hashed = "hashed"
 
 
 def generate_objects(count, x_size, y_size, max_x_size, max_y_size):
@@ -38,10 +42,12 @@ def parse_grid(grid):
     return parsed
 
 
-def get_grids_json(grid_managers, times=[]):
+def get_grids_json(grid_managers, times=None):
     """Collects grids from grid managers and returns them in single JSON."""
+    if times is None:
+        times = []
     grids = {}
-    for key, gm in grid_managers.iteritems():
+    for key, gm in grid_managers.items():
         grids[key] = parse_grid(gm.grid)
 
     grids["times"] = times

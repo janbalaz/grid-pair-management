@@ -1,6 +1,8 @@
 import pytest
 from backend.box import Box
 
+# python -m pytest C:\Users\johny\PycharmProjects\grid-pair-management\tests\test_box.py
+
 coordinates = [([(10, 10), (115, 12), (56, 14), (0, 180), (50, 0)], [0, 0, 115, 180]),
                ([(10, 5)], [10, 5, 10, 5]),
                ([(112, 192), (1150, 1), (185, 16), (92, 136)], [92, 1, 1150, 192]),

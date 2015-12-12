@@ -1,6 +1,6 @@
 import math
-from box import Box
-from utils import MNGMT_TYPE
+from backend.box import Box
+from backend.utils import StoreType
 
 
 class Cell:
@@ -8,23 +8,24 @@ class Cell:
     It implements methods for adding and removing pairs.
     """
 
-    def __init__(self, mngmt_type, obj_count=0):
-        """Based on management type creates dense matrix (as lists in list in Python)
+    def __init__(self, store_type, obj_count=0):
+        """Based on store type creates dense matrix (as lists in list in Python)
         or set of pairs. There is no need for special hashing, sets in Python use hashing as default.
         TODO: describe what is object count
         """
-        self.mngmt_type = mngmt_type
+        self.store_type = store_type
         self.count = obj_count
         self.ids = set()
 
-        if self.mngmt_type == MNGMT_TYPE.matrix:
-            self.pairs = [[False for y in range(self.count)] for x in range(self.count)]
+        if self.store_type == StoreType.matrix:
+            size = range(self.count)
+            self.pairs = [[False for _ in size] for _ in size]
         else:
             self.pairs = set()
 
     def add_pairs(self, bid):
         """Adds new pairs with new object with box ID. Addition is based on management type."""
-        if self.mngmt_type == MNGMT_TYPE.matrix:
+        if self.store_type == StoreType.matrix:
             for bid2 in self.ids:
                 self.pairs[bid][bid2] = True
                 self.pairs[bid2][bid] = True
@@ -37,7 +38,7 @@ class Cell:
     def remove_pairs(self, bid):
         """Removes every pair with given box ID. Removing is based on management type."""
         self.ids.discard(bid)
-        if self.mngmt_type == MNGMT_TYPE.matrix:
+        if self.store_type == StoreType.matrix:
             for bid2 in self.ids:
                 self.pairs[bid][bid2] = False
                 self.pairs[bid2][bid] = False
@@ -53,24 +54,27 @@ class GridManager:
     Implements methods for adding, removing and updating of boxes in the scene.
     """
 
-    def __init__(self, mngmt_type, obj_count, x_size, y_size, cell_size):
+    def __init__(self, store_type=StoreType.matrix, obj_count=10, x_size=600, y_size=600, cell_size=100):
         """Computes grid size, creates and stores grid. Stores also size of a cell."""
         self.boxes = dict()
         # TODO change cell_size with the count of objects
-        x_cells = int((x_size / cell_size) + 0.5)
-        y_cells = int((y_size / cell_size) + 0.5)
+        try:
+            x_cells = int((x_size / cell_size) + 0.5)
+            y_cells = int((y_size / cell_size) + 0.5)
+        except ZeroDivisionError:
+            x_cells, y_cells = 0, 0
         self.cell_size = cell_size
         # grid is represented as matrix
-        self.grid = [[Cell(mngmt_type, obj_count) for y in range(y_cells)] for x in range(x_cells)]
+        self.grid = [[Cell(store_type, obj_count) for _ in range(y_cells)] for _ in range(x_cells)]
 
     def add_box(self, box):
         """Creates AABB from the shape coordinates. Then marks shape id to corresponding cells."""
         # store new box in dictionary
         self.boxes[box.bid] = box
         # get left down corner cell
-        min_cell_x, min_cell_y = self.__cell(box.min_x, box.min_y)
+        min_cell_x, min_cell_y = self._cell(box.min_x, box.min_y)
         # get right upper corner cell
-        max_cell_x, max_cell_y = self.__cell(box.max_x, box.max_y)
+        max_cell_x, max_cell_y = self._cell(box.max_x, box.max_y)
 
         # add pairs to cells under AABB of object
         for i in range(min_cell_x, max_cell_x + 1):
@@ -80,9 +84,9 @@ class GridManager:
     def remove_box(self, box):
         """Removes pairs with current box id from grid."""
         # get left down corner cell
-        min_cell_x, min_cell_y = self.__cell(box.min_x, box.min_y)
+        min_cell_x, min_cell_y = self._cell(box.min_x, box.min_y)
         # get right upper corner cell
-        max_cell_x, max_cell_y = self.__cell(box.max_x, box.max_y)
+        max_cell_x, max_cell_y = self._cell(box.max_x, box.max_y)
 
         for i in range(min_cell_x, max_cell_x + 1):
             for j in range(min_cell_y, max_cell_y + 1):
@@ -96,15 +100,18 @@ class GridManager:
 
     def update_boxes(self):
         """Performs movement of box and updates grid."""
-        for _, box in self.boxes.iteritems():
+        for _, box in self.boxes.items():
             self.remove_box(box)
             # TODO must move box here!!!
             self.add_box(box)
 
-    def __cell(self, x, y):
+    def _cell(self, x, y):
         """Returns coordinates of cell based on x and y coordinates."""
-        x = int(x / self.cell_size)
-        y = int(y / self.cell_size)
+        try:
+            x = int(x / self.cell_size)
+            y = int(y / self.cell_size)
+        except ZeroDivisionError:
+            x, y = 0, 0
         return x, y
 
 if __name__ == "__main__":

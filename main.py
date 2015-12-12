@@ -1,6 +1,6 @@
 from functools import wraps
 import time
-from flask import Flask,abort
+from flask import Flask, abort
 import backend.utils as utils
 from backend.grid_manager import GridManager
 
@@ -27,8 +27,8 @@ def hello(token):
 @app.route("/init-grid/<int:obj_count>/<int:x_size>/<int:y_size>/<token>")
 @owns_token
 def initialize_grid(obj_count, x_size, y_size, token):
-    GMS['mgm'] = GridManager(utils.MNGMT_TYPE.matrix, obj_count, x_size, y_size, 64)
-    GMS['hgm'] = GridManager(utils.MNGMT_TYPE.hashed, obj_count, x_size, y_size, 64)
+    GMS['mgm'] = GridManager(utils.StoreType.matrix, obj_count, x_size, y_size, 64)
+    GMS['hgm'] = GridManager(utils.StoreType.hashed, obj_count, x_size, y_size, 64)
 
     boxes = utils.generate_objects(obj_count, x_size, y_size, 256, 256)
 
@@ -43,7 +43,7 @@ def initialize_grid(obj_count, x_size, y_size, token):
 def move_objects(token):
     times = []
     try:
-        for _, gm in GMS.iteritems():
+        for _, gm in GMS.items():
             start = time.time()
             gm.update_boxes()
             times.append(time.time() - start)
