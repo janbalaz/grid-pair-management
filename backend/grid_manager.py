@@ -47,6 +47,9 @@ class Cell:
                 self.pairs.discard((bid, bid2))
                 self.pairs.discard((bid2, bid))
 
+    def __repr__(self):
+        return str(self.pairs)
+
 
 class GridManager:
     """Represents grid in dense matrix. Grid is containing Cell objects which manage adding and removing of pairs.
@@ -109,6 +112,7 @@ class GridManager:
         except ZeroDivisionError:
             x, y = 0, 0
         return x, y
+
 
 if __name__ == "__main__":
     pass

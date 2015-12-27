@@ -37,9 +37,14 @@ def generate_objects(count, x_size, y_size, max_x_size, max_y_size, cell_size):
 def parse_grid(grid):
     """Creates dict dump from dense matrix. Used for JSON dump."""
     parsed = OrderedDict()
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(grid)
     for i in range(len(grid)):
+        print("i: {}".format(i))
         parsed[str(i)] = OrderedDict()
-        for j in range(len(grid)):
+        for j in range(len(grid[i])):
+            print("j: {}".format(j))
             parsed[str(i)][str(j)] = [x for x in grid[i][j].ids]
     return parsed
 
