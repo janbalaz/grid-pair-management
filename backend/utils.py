@@ -39,23 +39,27 @@ def parse_grid(grid):
     parsed = OrderedDict()
     import pprint
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(grid)
+    #pp.pprint(grid)
     for i in range(len(grid)):
-        print("i: {}".format(i))
+        #print("i: {}".format(i))
         parsed[str(i)] = OrderedDict()
         for j in range(len(grid[i])):
-            print("j: {}".format(j))
+            #print("j: {}".format(j))
             parsed[str(i)][str(j)] = [x for x in grid[i][j].ids]
     return parsed
 
 
-def get_grids_json(grid_managers, times=None):
+def get_grids_json(grid_managers, boxes, times=None):
     """Collects grids from grid managers and returns them in single JSON."""
     if times is None:
         times = []
     grids = {}
     for key, gm in grid_managers.items():
         grids[key] = parse_grid(gm.grid)
+
+    grids["boxes"] = []
+    for box in boxes:
+        grids["boxes"].append([box.min_x, box.min_y, box.max_x, box.max_y])
 
     grids["times"] = times
     return json.dumps(grids)

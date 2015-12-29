@@ -1,12 +1,27 @@
 from functools import wraps
 import time
-from flask import Flask, abort
+from flask import Flask, abort, request
 import backend.utils as utils
 from backend.grid_manager import GridManager
 
 app = Flask(__name__)
 TOKEN = "abc"
 GMS = dict(mgm=None, hgm=None)
+
+
+@app.after_request
+def add_cors(resp):
+    """ Ensure all responses have the CORS headers. This ensures any failures are also accessible
+        by the client. """
+    resp.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+    resp.headers['Access-Control-Allow-Credentials'] = 'true'
+    resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
+    resp.headers['Access-Control-Allow-Headers'] = request.headers.get('Access-Control-Request-Headers',
+                                                                       'Authorization')
+    # set low for debugging
+    if app.debug:
+        resp.headers['Access-Control-Max-Age'] = '1'
+    return resp
 
 
 def owns_token(f):
@@ -31,13 +46,13 @@ def initialize_grid(obj_count, x_size, y_size, token):
     GMS['mgm'] = GridManager(utils.StoreType.matrix, obj_count, x_size, y_size, 40)
     GMS['hgm'] = GridManager(utils.StoreType.hashed, obj_count, x_size, y_size, 40)
 
-    boxes = utils.generate_objects(obj_count, x_size, y_size, 256, 256, 40)
+    boxes = utils.generate_objects(obj_count, x_size, y_size, 120, 120, 40)
 
     for box in boxes:
         GMS['mgm'].add_box(box)
         GMS['hgm'].add_box(box)
 
-    return utils.get_grids_json(GMS)
+    return utils.get_grids_json(GMS, boxes)
 
 
 @app.route("/move-objects/<token>")
