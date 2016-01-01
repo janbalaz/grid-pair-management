@@ -64,7 +64,7 @@ def get_grids_json(grid_managers, boxes, times=None):
     grids["objects"] = []
     for box in boxes:
         grids["boxes"].append([box.min_x, box.min_y, box.max_x, box.max_y])
-        grids["objects"].append({box.bid: box.coordinates})
+        grids["objects"].append(box.coordinates)
 
     grids["times"] = times
     return json.dumps(grids)
