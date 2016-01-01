@@ -60,10 +60,13 @@ def initialize_grid(obj_count, x_size, y_size, token):
 def move_objects(token):
     times = []
     try:
-        for _, gm in GMS.items():
-            start = time.time()
-            gm.update_boxes()
-            times.append(time.time() - start)
+        start = time.time()
+        GMS['mgm'].update_boxes()
+        times.append(float('%.10f' % (time.time() - start)))
+
+        start = time.time()
+        GMS['hgm'].update_boxes()
+        times.append(float('%.10f' % (time.time() - start)))
 
         return utils.get_grids_json(GMS, GMS['mgm'].boxes.values(), times)
     except (ValueError, TypeError):

@@ -5,7 +5,7 @@ body {
 canvas {
     background: #fff;
     margin: 20px;
-    margin-left: 0px;
+    /*margin-left: 0px;*/
 }
 
 .container {

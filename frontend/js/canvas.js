@@ -47,13 +47,14 @@ var $class = function(definition) {
 
 (function(window) {
     $(document).ready(function($) {
-        var timer = null;
+        var timer = null;    
         initGrid();
 
-        $('canvas').get(0).addEventListener('mousedown', function(e) {
-            cx = getCellX(getMouseX(e.pageX));
-            cy = getCellY(getMouseY(e.pageY));
-        });         
+        /*$('canvas').get(0).addEventListener('mousedown', function(e) {
+            var cx = getCellX(getMouseX(e.pageX));
+            var cy = getCellY(getMouseY(e.pageY));
+            showPairsAtTile(cx, cy);
+        }); */      
 
         $('#next-button').get(0).addEventListener('click', function(e) {
             getUpdatedData();
@@ -77,6 +78,12 @@ var $class = function(definition) {
         });
     });
 }(window));
+
+/*function showPairsAtTile(cx, cy) {
+    if (cx != null && cy != null) {
+        $('#tile-id').text(glbl.data.mgm[cx][cy]);
+    }
+}*/
 
 function initGrid() {
     setPrivateProperties();
@@ -201,7 +208,7 @@ function getYCellCount() {
 }
 
 function getData() {
-    $.getJSON([glbl.url, "init-grid", 3, glbl.width, glbl.height, "abc"].join('/'), function(data) {
+    $.getJSON([glbl.url, "init-grid", 2, glbl.width, glbl.height, "abc"].join('/'), function(data) {
         preserveData(data);
         fillGrid(data.boxes);
         drawObjects(data.objects);
@@ -214,9 +221,18 @@ function getUpdatedData() {
         preserveData(data);
         fillGrid(data.boxes);
         drawObjects(data.objects);
+        showTimes(data.times);
     });
 }
 
+function showTimes(data) {
+    matrix = data[0];
+    hashed = data[1];
+    $('#matrix-time').text(matrix);
+    $('#hashed-time').text(hashed);
+}
+
 function preserveData(data) {
+    glbl.data = null;
     glbl.data = data;
 }
