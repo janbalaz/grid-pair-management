@@ -29,7 +29,10 @@ def generate_objects(count, x_size, y_size, max_x_size, max_y_size, cell_size):
             if 0 <= x < x_limit and 0 <= y < y_limit:
                 points.append((x, y))
 
-        objects.append(Box(i, points))
+        dx = random.randint(cell_size/2 + 1, cell_size)
+        dy = random.randint(cell_size/2 + 1, cell_size)
+
+        objects.append(Box(i, points, dx, dy))
 
     return objects
 
@@ -58,8 +61,10 @@ def get_grids_json(grid_managers, boxes, times=None):
         grids[key] = parse_grid(gm.grid)
 
     grids["boxes"] = []
+    grids["objects"] = []
     for box in boxes:
         grids["boxes"].append([box.min_x, box.min_y, box.max_x, box.max_y])
+        grids["objects"].append({box.bid: box.coordinates})
 
     grids["times"] = times
     return json.dumps(grids)

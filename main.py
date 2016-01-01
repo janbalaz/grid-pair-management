@@ -7,6 +7,7 @@ from backend.grid_manager import GridManager
 app = Flask(__name__)
 TOKEN = "abc"
 GMS = dict(mgm=None, hgm=None)
+BOXES = []
 
 
 @app.after_request
@@ -46,13 +47,13 @@ def initialize_grid(obj_count, x_size, y_size, token):
     GMS['mgm'] = GridManager(utils.StoreType.matrix, obj_count, x_size, y_size, 40)
     GMS['hgm'] = GridManager(utils.StoreType.hashed, obj_count, x_size, y_size, 40)
 
-    boxes = utils.generate_objects(obj_count, x_size, y_size, 120, 120, 40)
+    BOXES = utils.generate_objects(obj_count, x_size, y_size, 120, 120, 40)
 
-    for box in boxes:
+    for box in BOXES:
         GMS['mgm'].add_box(box)
         GMS['hgm'].add_box(box)
 
-    return utils.get_grids_json(GMS, boxes)
+    return utils.get_grids_json(GMS, BOXES)
 
 
 @app.route("/move-objects/<token>")
@@ -64,9 +65,9 @@ def move_objects(token):
             gm.update_boxes()
             times.append(time.time() - start)
 
-        return utils.get_grids_json(GMS, times)
+        return utils.get_grids_json(GMS, GMS['mgm'].boxes.values(), times)
     except (ValueError, TypeError):
-        return "{}"
+        return abort(403)
 
 
 if __name__ == "__main__":

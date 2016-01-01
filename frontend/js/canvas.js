@@ -60,6 +60,10 @@ var $class = function(definition) {
             console.log(cy);*/
             console.log(glbl.data.mgm[cx][cy]);
         });         
+
+        $('#forward').get(0).addEventListener('click', function(e) {
+            getUpdatedData();
+        });
     });
 }(window));
 
@@ -85,6 +89,7 @@ function setPrivateProperties() {
 
 function drawGrid() {
     glbl.context.beginPath();
+    glbl.context.lineWidth = 1;
     for (var x = 0; x <= glbl.height; x += glbl.cellSize) {
         glbl.context.moveTo(glbl.padding, 0.5 + x + glbl.padding);
         glbl.context.lineTo( glbl.width + glbl.padding, 0.5 + x + glbl.padding);
@@ -193,6 +198,14 @@ function getData() {
     //return obj;
 
     $.getJSON([glbl.url, "init-grid", 10, glbl.width, glbl.height, "abc"].join('/'), function(data) {
+        preserveData(data);
+        fillGrid(data.boxes);
+    });
+}
+
+function getUpdatedData() {
+    $.getJSON([glbl.url, "move-objects", "abc"].join('/'), function(data) {
+        console.log(data);
         preserveData(data);
         fillGrid(data.boxes);
     });

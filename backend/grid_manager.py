@@ -60,6 +60,8 @@ class GridManager:
     def __init__(self, store_type=StoreType.matrix, obj_count=10, x_size=600, y_size=600, cell_size=100):
         """Computes grid size, creates and stores grid. Stores also size of a cell."""
         self.boxes = dict()
+        self.x_size = x_size
+        self.y_size = y_size
         self.cell_size = cell_size
         # TODO change cell_size with the count of objects
         x_cells, y_cells = self._cell(x_size, y_size)
@@ -102,6 +104,7 @@ class GridManager:
         for _, box in self.boxes.items():
             self.remove_box(box)
             # TODO must move box here!!!
+            box.move_box(self.x_size, self.y_size)
             self.add_box(box)
 
     def _cell(self, x, y):
