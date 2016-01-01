@@ -1,8 +1,29 @@
 body {
-    background: lightblue;
+    background: #FFF;
 }
 
 canvas {
     background: #fff;
     margin: 20px;
+    margin-left: 0px;
+}
+
+.container {
+	margin-left: 0px;
+}
+
+.btn-group-vertical {
+	margin-top: 20px;
+}
+
+.btn {
+	width: 100%;
+}
+
+#alg-times {
+	margin-top: 20px;
+}
+
+#tile-ids {
+	margin-top: 20px;
 }

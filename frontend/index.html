@@ -25,7 +25,32 @@
 
   <body>
     <div class="container">
-      <button type="button" class="btn btn-primary" id="forward">Action</button>
+      <div class="row">
+        <div class="col-md-1">
+          <div class="btn-group-vertical" role="group" aria-label="...">
+            <button type="button" class="btn btn-default" id="next-button">Next</button>
+            <button type="button" class="btn btn-default" id="start-button">Start</button>
+            <button type="button" class="btn btn-default" id="pause-button">Pause</button>
+            <button type="button" class="btn btn-default" id="reset-button">Reset</button>
+          </div>
+          <div id="alg-times">
+            <p>Matrix:<br /><span id="matrix-time">time1</span> ms</p>
+            <p>Hashed:<br /><span id="hashed-time">time2</span> ms</p>
+          </div>
+          <div id="tile-ids">
+            <p>IDs at tile:<br /><span id="tile-id">ids</span></p>
+          </div>
+        </div>
+        <div class="col-md-11" id="canvas-container">
+
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-11">
+          <h2>How to use</h2>
+        </div>
+      </div>
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>

@@ -47,29 +47,40 @@ var $class = function(definition) {
 
 (function(window) {
     $(document).ready(function($) {
+        var timer = null;
         initGrid();
-        getData();
 
         $('canvas').get(0).addEventListener('mousedown', function(e) {
             cx = getCellX(getMouseX(e.pageX));
             cy = getCellY(getMouseY(e.pageY));
-            /*console.log(glbl.width);
-            console.log(glbl.height);
-            console.log(glbl.data.mgm);
-            console.log(cx);
-            console.log(cy);*/
-            console.log(glbl.data.mgm[cx][cy]);
         });         
 
-        $('#forward').get(0).addEventListener('click', function(e) {
+        $('#next-button').get(0).addEventListener('click', function(e) {
             getUpdatedData();
+        });
+
+        $('#start-button').get(0).addEventListener('click', function(e) {
+            if (!timer) {
+                timer = setInterval(getUpdatedData, 1000);
+            }
+        });
+
+        $('#pause-button').get(0).addEventListener('click', function(e) {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+        });
+
+        $('#reset-button').get(0).addEventListener('click', function(e) {
+            getData();
         });
     });
 }(window));
 
 function initGrid() {
     setPrivateProperties();
-    drawGrid();
+    getData();
 }
 
 function setPrivateProperties() {
@@ -81,13 +92,14 @@ function setPrivateProperties() {
     var cw = glbl.width + (glbl.padding*2) + 1;
     var ch = glbl.height + (glbl.padding*2) + 1;
 
-    glbl.canvas = $('<canvas/>').attr({width: cw, height: ch}).appendTo('.container').get(0);
+    glbl.canvas = $('<canvas/>').attr({width: cw, height: ch}).appendTo('#canvas-container').get(0);
     glbl.context = glbl.canvas.getContext("2d");
     glbl.xOffset = getXOffset();
     glbl.yOffset = getYOffset();
 }
 
 function drawGrid() {
+    glbl.context.clearRect(0, 0, glbl.width, glbl.height);
     glbl.context.beginPath();
     glbl.context.lineWidth = 1;
     for (var x = 0; x <= glbl.height; x += glbl.cellSize) {
@@ -105,19 +117,6 @@ function drawGrid() {
 }
 
 function fillGrid(data) {
-    //console.log(data);
-    /*var i = 0, j = 0;
-    for (x in data) {
-        for (y in data[i]) {
-            for (var k = 0; k < data[i][j].length; k += 1) {
-                fillCell(i, j, data[i][j][k]);  
-            }
-            j += 1;
-        }
-        i += 1;
-        j = 0;
-    }*/
-    glbl.context.clearRect(0, 0, glbl.width, glbl.height);
     drawGrid();
     for (var i = 0; i < data.length; i += 1) {
         min_x = getAbsPosX(getCellX(data[i][0]));
@@ -202,7 +201,7 @@ function getYCellCount() {
 }
 
 function getData() {
-    $.getJSON([glbl.url, "init-grid", 10, glbl.width, glbl.height, "abc"].join('/'), function(data) {
+    $.getJSON([glbl.url, "init-grid", 3, glbl.width, glbl.height, "abc"].join('/'), function(data) {
         preserveData(data);
         fillGrid(data.boxes);
         drawObjects(data.objects);
@@ -210,8 +209,8 @@ function getData() {
 }
 
 function getUpdatedData() {
-    $.getJSON([glbl.url, "move-objects", "abc"].join('/'), function(data) {
-        console.log(data);
+    var token = "abc";
+    $.getJSON([glbl.url, "move-objects", token].join('/'), function(data) {
         preserveData(data);
         fillGrid(data.boxes);
         drawObjects(data.objects);
