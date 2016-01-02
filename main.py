@@ -1,6 +1,6 @@
 from functools import wraps
 import time
-from flask import Flask, abort, request
+from flask import Flask, abort, request, render_template
 import backend.utils as utils
 from backend.grid_manager import GridManager
 
@@ -37,7 +37,7 @@ def owns_token(f):
 @app.route("/<token>")
 @owns_token
 def hello(token):
-    return "Hello World!"
+    return render_template('index.html')
 
 
 @app.route("/init-grid/<int:obj_count>/<int:x_size>/<int:y_size>/<token>")
