@@ -5,11 +5,16 @@ var glbl = (function() {
     var xOffset, yOffset;
     var xCellCount, yCellCount;
     var gridCount;
+    // var url = 'http://mmap.pythonanywhere.com';
     var url = 'http://localhost:5000';
     var data;
     var context;
+    var time = 125;
+    var oCount = 10;
+    var token = "abc";
     var cellSize = 40;
     var values = [];
+    var pause = false;
     var colors = [[0, 51, 153], [0, 102, 0], [153, 0, 0], [153, 102, 0], [0, 153, 255], [102, 204, 51], [255, 153, 51], [102, 102, 204], [255, 51, 0], [255, 255, 0]];
     return {
         canvas: canvas,
@@ -27,6 +32,10 @@ var glbl = (function() {
         values: values,
         colors: colors,
         data: data,
+        time: time,
+        oCount: oCount,
+        token: token,
+        pause: pause
     };
 })();
 
@@ -50,24 +59,20 @@ var $class = function(definition) {
         var timer = null;    
         initGrid();
 
-        /*$('canvas').get(0).addEventListener('mousedown', function(e) {
-            var cx = getCellX(getMouseX(e.pageX));
-            var cy = getCellY(getMouseY(e.pageY));
-            showPairsAtTile(cx, cy);
-        }); */      
-
         $('#next-button').get(0).addEventListener('click', function(e) {
             getUpdatedData();
         });
 
         $('#start-button').get(0).addEventListener('click', function(e) {
             if (!timer) {
-                timer = setInterval(getUpdatedData, 1000);
+                glbl.pause = false;
+                timer = setInterval(getUpdatedData, glbl.time);
             }
         });
 
         $('#pause-button').get(0).addEventListener('click', function(e) {
             if (timer) {
+                glbl.pause = true;
                 clearInterval(timer);
                 timer = null;
             }
@@ -78,12 +83,6 @@ var $class = function(definition) {
         });
     });
 }(window));
-
-/*function showPairsAtTile(cx, cy) {
-    if (cx != null && cy != null) {
-        $('#tile-id').text(glbl.data.mgm[cx][cy]);
-    }
-}*/
 
 function initGrid() {
     setPrivateProperties();
@@ -136,13 +135,15 @@ function fillGrid(data) {
 
 function drawObjects(data) {
     glbl.context.lineWidth = 1;
+    var color;
     for (var i = 0; i < data.length; i += 1) {
         for (var j = 0; j < data[i].length; j += 1) {
+            color = i % 10;
             glbl.context.beginPath();
             glbl.context.arc(data[i][j][0], data[i][j][1], glbl.cellSize/20, 0, 2*Math.PI);
             glbl.context.closePath();
-            glbl.context.fillStyle = 'rgb(' + [glbl.colors[i][0], glbl.colors[i][1], glbl.colors[i][2]].join(',') + ')';
-            glbl.context.strokeStyle = 'rgb(' + [glbl.colors[i][0], glbl.colors[i][1], glbl.colors[i][2]].join(',') + ')';
+            glbl.context.fillStyle = 'rgb(' + [glbl.colors[color][0], glbl.colors[color][1], glbl.colors[color][2]].join(',') + ')';
+            glbl.context.strokeStyle = 'rgb(' + [glbl.colors[color][0], glbl.colors[color][1], glbl.colors[color][2]].join(',') + ')';
             glbl.context.stroke();
             glbl.context.fill();
         }
@@ -150,6 +151,7 @@ function drawObjects(data) {
 }
 
 function drawRect(min_x, min_y, max_x, max_y, color) {
+    color = color % 10;
     glbl.context.lineWidth = 3;
     glbl.context.strokeStyle = 'rgb(' + [glbl.colors[color][0], glbl.colors[color][1], glbl.colors[color][2]].join(',') + ')';
     glbl.context.strokeRect(min_x - 1, min_y - 1, max_x, max_y);
@@ -208,7 +210,7 @@ function getYCellCount() {
 }
 
 function getData() {
-    $.getJSON([glbl.url, "init-grid", 2, glbl.width, glbl.height, "abc"].join('/'), function(data) {
+    $.getJSON([glbl.url, "init-grid", glbl.oCount, glbl.width, glbl.height, glbl.token].join('/'), function(data) {
         preserveData(data);
         fillGrid(data.boxes);
         drawObjects(data.objects);
@@ -216,13 +218,14 @@ function getData() {
 }
 
 function getUpdatedData() {
-    var token = "abc";
-    $.getJSON([glbl.url, "move-objects", token].join('/'), function(data) {
-        preserveData(data);
-        fillGrid(data.boxes);
-        drawObjects(data.objects);
-        showTimes(data.times);
-    });
+    if (!glbl.pause) {
+        $.getJSON([glbl.url, "move-objects", glbl.token].join('/'), function (data) {
+            preserveData(data);
+            fillGrid(data.boxes);
+            drawObjects(data.objects);
+            showTimes(data.times);
+        });
+    }
 }
 
 function showTimes(data) {

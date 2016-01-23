@@ -29,8 +29,8 @@ def generate_objects(count, x_size, y_size, max_x_size, max_y_size, cell_size):
             if 0 <= x < x_limit and 0 <= y < y_limit:
                 points.append((x, y))
 
-        dx = random.randint(cell_size/2 + 1, cell_size)
-        dy = random.randint(cell_size/2 + 1, cell_size)
+        dx = random.randint(1, cell_size/10 + 1)
+        dy = random.randint(1, cell_size/10 + 1)
 
         objects.append(Box(i, points, dx, dy))
 
